@@ -10,10 +10,10 @@
     <meta name="description" content="Connect with cyclists and plan rides together">
     <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIlJpZGVUb2dldGhlciIsCiAgInNob3J0X25hbWUiOiAiUmlkZVRvZ2V0aGVyIiwKICAic3RhcnRfdXJsIjogIi8iLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJ0aGVtZV9jb2xvciI6ICIjMjU2M2ViIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjMGYxNzJhIiwKICAib3JpZW50YXRpb24iOiAicG9ydHJhaXQiLAogICJpY29ucyI6IFsKICAgIHsKICAgICAgInNyYyI6ICJkYXRhOmltYWdlL3BuZztiYXNlNjQsaVZCT1J3MEtHZ29BQUFBTlNVaEVVZ0FBQUNBQUFBQWdDQVlBQUFCemVuci9BQUFBQkdkQlRVRUFBTEdQQy94aEJRQUFBQ0JqU0ZKTkFBQjZKZ0FBZ0lRQUFQb0FBQUNBNkFBQWRUQUFBT3BnQUFBNm1BQUFBM0NJbEMwQUFBQTFrbEVRVlFZbGRXVU13c0VRVG4vLy9mOVBZQURCQllXVnhRNFF3aVNGNFh5ZzgveGlNb3drd0tRUUVRSGczNG9rSkI0MW15cGR0R2VaUjUzcHd3VGMzMDYyUkFBQUFCSlJVNUVya0pnZ2c9PSIsCiAgICAgICJ0eXBlIjogImltYWdlL3BuZyIsCiAgICAgICJzaXplcyI6ICIzMngzMiIKICAgIH0KICBdCn0=">
     
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <!-- Firebase SDK v9 Compat -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     
     <!-- Mapbox -->
     <script src='https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js'></script>
@@ -1267,13 +1267,14 @@
             const container = document.getElementById('publicRides');
             
             try {
+                console.log('Loading public rides...');
+                
+                // First, let's try a simpler query without date filter
                 const snapshot = await db.collection('availability')
                     .where('visibility', '==', 'public')
-                    .where('date', '>=', new Date().toISOString().split('T')[0])
-                    .limit(20)
                     .get();
                 
-                console.log('Found', snapshot.size, 'public rides');
+                console.log('Found', snapshot.size, 'public rides (before date filter)');
                 
                 if (snapshot.empty) {
                     container.innerHTML = '<div class="calendar-container"><div class="empty-state"><p>No public rides available. Be the first to create one!</p></div></div>';
@@ -1287,20 +1288,44 @@
                 gridContainer.style.cssText = 'display: grid; gap: 1rem;';
                 container.appendChild(gridContainer);
                 
-                for (const doc of snapshot.docs) {
+                // Filter by date in JavaScript instead of Firestore
+                const today = new Date().toISOString().split('T')[0];
+                const futureDocs = [];
+                
+                snapshot.forEach(doc => {
                     const data = doc.data();
-                    
-                    // Skip current user's own rides
-                    if (data.userId === currentUser.uid) continue;
-                    
+                    if (data.date >= today && data.userId !== currentUser.uid) {
+                        futureDocs.push({ id: doc.id, ...data });
+                    }
+                });
+                
+                console.log('Found', futureDocs.length, 'future public rides from other users');
+                
+                if (futureDocs.length === 0) {
+                    gridContainer.innerHTML = '<div class="calendar-container"><div class="empty-state"><p>No upcoming public rides available</p></div></div>';
+                    return;
+                }
+                
+                // Load each ride
+                for (const ride of futureDocs) {
                     try {
-                        const userDoc = await db.collection('users').doc(data.userId).get();
-                        const userData = userDoc.data() || { name: 'Anonymous Rider' };
+                        console.log('Loading ride from user:', ride.userId);
+                        
+                        let userData = { name: 'Anonymous Rider' };
+                        try {
+                            const userDoc = await db.collection('users').doc(ride.userId).get();
+                            if (userDoc.exists) {
+                                userData = userDoc.data();
+                                console.log('Found user data:', userData);
+                            }
+                        } catch (userError) {
+                            console.error('Error fetching user:', userError);
+                        }
                         
                         const rideDiv = document.createElement('div');
                         rideDiv.className = 'calendar-container';
                         
-                        const dateObj = new Date(data.date);
+                        const dateObj = new Date(ride.date);
                         const formattedDate = dateObj.toLocaleDateString('en-US', { 
                             weekday: 'long', 
                             month: 'short', 
@@ -1321,10 +1346,10 @@
                                 <div style="flex: 1;">
                                     <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
                                         <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--secondary)); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
-                                            ${userData.name.substring(0, 2).toUpperCase()}
+                                            ${(userData.name || 'R').substring(0, 2).toUpperCase()}
                                         </div>
                                         <div>
-                                            <h3 style="margin: 0;">${userData.name}</h3>
+                                            <h3 style="margin: 0;">${userData.name || 'Anonymous Rider'}</h3>
                                             <p style="color: var(--text-secondary); margin: 0; font-size: 0.9rem;">Looking for riding partner</p>
                                         </div>
                                     </div>
@@ -1333,14 +1358,14 @@
                                             <strong>${formattedDate}</strong>
                                         </p>
                                         <p style="color: var(--text-secondary); margin-bottom: 0.5rem;">
-                                            ${formatTime(data.startTime)} - ${formatTime(data.endTime)}
+                                            ${formatTime(ride.startTime)} - ${formatTime(ride.endTime)}
                                         </p>
                                         <span style="display: inline-block; padding: 0.25rem 0.75rem; background: rgba(37, 99, 235, 0.1); color: var(--primary); border-radius: 20px; font-size: 0.85rem;">
-                                            ${data.trailType.charAt(0).toUpperCase() + data.trailType.slice(1).replace(/([A-Z])/g, ' $1')}
+                                            ${ride.trailType.charAt(0).toUpperCase() + ride.trailType.slice(1).replace(/([A-Z])/g, ' $1')}
                                         </span>
                                     </div>
                                 </div>
-                                <button class="btn-primary" onclick="requestToJoin('${doc.id}')" style="width: auto; padding: 0.75rem 1.5rem; margin: 0;">
+                                <button class="btn-primary" onclick="requestToJoin('${ride.id}')" style="width: auto; padding: 0.75rem 1.5rem; margin: 0;">
                                     Request to Join
                                 </button>
                             </div>
@@ -1348,17 +1373,24 @@
                         
                         gridContainer.appendChild(rideDiv);
                     } catch (error) {
-                        console.error('Error loading rider info:', error);
+                        console.error('Error displaying ride:', error);
                     }
-                }
-                
-                if (gridContainer.children.length === 0) {
-                    gridContainer.innerHTML = '<div class="calendar-container"><div class="empty-state"><p>No other public rides available yet</p></div></div>';
                 }
                 
             } catch (error) {
                 console.error('Error loading public rides:', error);
-                container.innerHTML = '<div class="calendar-container"><div class="empty-state"><p>Error loading rides. Please try again.</p></div></div>';
+                // Show more detailed error
+                container.innerHTML = `
+                    <div class="calendar-container">
+                        <div class="empty-state">
+                            <p>Error loading rides</p>
+                            <p style="font-size: 0.9rem; margin-top: 0.5rem; color: var(--error);">${error.message}</p>
+                            <button class="btn-primary" onclick="loadPublicRides()" style="margin-top: 1rem; padding: 0.5rem 1rem;">
+                                Try Again
+                            </button>
+                        </div>
+                    </div>
+                `;
             }
         }
         
