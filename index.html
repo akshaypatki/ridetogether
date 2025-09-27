@@ -904,10 +904,11 @@
                     const credential = await auth.createUserWithEmailAndPassword(email, password);
                     await credential.user.updateProfile({ displayName: name });
                     
-                    // Create user document
+                    // Create user document with name
                     await db.collection('users').doc(credential.user.uid).set({
-                        name: name,
+                        name: name || email.split('@')[0],
                         email: email,
+                        displayName: name || email.split('@')[0],
                         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                         rides: 0,
                         friends: []
@@ -919,6 +920,16 @@
                     console.log('Signing in...');
                     const credential = await auth.signInWithEmailAndPassword(email, password);
                     currentUser = credential.user;
+                    
+                    // Ensure user document has name field
+                    const userDoc = await db.collection('users').doc(currentUser.uid).get();
+                    if (userDoc.exists && !userDoc.data().name) {
+                        await db.collection('users').doc(currentUser.uid).update({
+                            name: currentUser.displayName || currentUser.email.split('@')[0],
+                            displayName: currentUser.displayName || currentUser.email.split('@')[0]
+                        });
+                    }
+                    
                     console.log('Signed in successfully');
                 }
             } catch (error) {
@@ -1365,7 +1376,7 @@
                                         </span>
                                     </div>
                                 </div>
-                                <button class="btn-primary" onclick="requestToJoin('${ride.id}')" style="width: auto; padding: 0.75rem 1.5rem; margin: 0;">
+                                <button class="btn-primary" onclick="requestToJoin('${ride.id}', event)" style="width: auto; padding: 0.75rem 1.5rem; margin: 0;">
                                     Request to Join
                                 </button>
                             </div>
@@ -1395,11 +1406,34 @@
         }
         
         // Request to join a ride
-        async function requestToJoin(availabilityId) {
+        async function requestToJoin(availabilityId, event) {
+            console.log('Requesting to join ride:', availabilityId);
+            
             try {
-                // Add booking request to Firestore
+                // Get the availability details first
+                const availDoc = await db.collection('availability').doc(availabilityId).get();
+                if (!availDoc.exists) {
+                    showNotification('This ride no longer exists', 'error');
+                    return;
+                }
+                
+                const availData = availDoc.data();
+                
+                // Check if user already requested
+                const existingRequest = await db.collection('bookings')
+                    .where('availabilityId', '==', availabilityId)
+                    .where('requesterId', '==', currentUser.uid)
+                    .get();
+                
+                if (!existingRequest.empty) {
+                    showNotification('You already requested to join this ride', 'info');
+                    return;
+                }
+                
+                // Create booking request
                 await db.collection('bookings').add({
                     availabilityId: availabilityId,
+                    ownerId: availData.userId,
                     requesterId: currentUser.uid,
                     requesterName: currentUser.displayName || currentUser.email.split('@')[0],
                     status: 'pending',
@@ -1409,14 +1443,16 @@
                 
                 showNotification('Request sent! The rider will be notified.', 'success');
                 
-                // Disable the button
-                event.target.textContent = 'Request Sent';
-                event.target.disabled = true;
-                event.target.style.opacity = '0.7';
+                // Update button
+                if (event && event.target) {
+                    event.target.textContent = 'Request Sent';
+                    event.target.disabled = true;
+                    event.target.style.opacity = '0.7';
+                }
                 
             } catch (error) {
                 console.error('Error sending request:', error);
-                showNotification('Error sending request', 'error');
+                showNotification('Error sending request: ' + error.message, 'error');
             }
         }
 
