@@ -697,10 +697,10 @@
                     🚴 RideTogether
                 </div>
                 <div class="nav-links">
-                    <a class="nav-link active" onclick="showDashboard()">Dashboard</a>
-                    <a class="nav-link" onclick="showPage('find')">Find Riders</a>
-                    <a class="nav-link" onclick="showPage('trails')">Trails</a>
-                    <a class="nav-link" onclick="showPage('events')">Events</a>
+                    <a href="#" class="nav-link active" onclick="showDashboard(); return false;">Dashboard</a>
+                    <a href="#" class="nav-link" onclick="showPage('find'); return false;">Find Riders</a>
+                    <a href="#" class="nav-link" onclick="showPage('trails'); return false;">Trails</a>
+                    <a href="#" class="nav-link" onclick="showPage('events'); return false;">Events</a>
                 </div>
                 <div class="user-menu">
                     <div class="user-avatar" onclick="signOut()">
@@ -1166,7 +1166,6 @@
 
         function showPage(page) {
             console.log('Showing page:', page);
-            const content = document.getElementById('mainContent');
             
             // Update active nav
             document.querySelectorAll('.nav-link').forEach(link => {
@@ -1176,53 +1175,88 @@
                 }
             });
             
+            // Get the main container and update its content
+            const mainContainer = document.getElementById('mainContainer');
+            
             switch(page) {
                 case 'find':
-                    content.innerHTML = `
-                        <div class="content-header">
-                            <h1>Find Riders</h1>
-                            <p style="color: var(--text-secondary);">Discover cyclists looking for riding partners</p>
-                        </div>
-                        <div id="publicRides">
-                            <div class="empty-state"><p>Loading public rides...</p></div>
-                        </div>
+                    mainContainer.innerHTML = `
+                        <main class="main-content" style="grid-column: 1 / -1;">
+                            <div class="content-header">
+                                <h1>Find Riders</h1>
+                                <p style="color: var(--text-secondary);">Discover cyclists looking for riding partners</p>
+                            </div>
+                            <div id="publicRides">
+                                <div class="empty-state"><p>Loading public rides...</p></div>
+                            </div>
+                        </main>
                     `;
                     loadPublicRides();
                     break;
                     
                 case 'trails':
-                    content.innerHTML = `
-                        <div class="content-header">
-                            <h1>Trails</h1>
-                            <p style="color: var(--text-secondary);">Explore cycling trails near you</p>
-                        </div>
-                        <div class="map-container" style="height: 600px;">
-                            <div id="trailsMap"></div>
-                        </div>
+                    mainContainer.innerHTML = `
+                        <main class="main-content" style="grid-column: 1 / -1;">
+                            <div class="content-header">
+                                <h1>Trails</h1>
+                                <p style="color: var(--text-secondary);">Explore cycling trails near you</p>
+                            </div>
+                            <div class="map-container" style="height: 600px;">
+                                <div id="trailsMap" style="width: 100%; height: 100%;"></div>
+                            </div>
+                        </main>
                     `;
                     setTimeout(() => {
-                        const trailsMap = new mapboxgl.Map({
-                            container: 'trailsMap',
-                            style: 'mapbox://styles/mapbox/outdoors-v12',
-                            center: userLocation,
-                            zoom: 11
-                        });
-                        trailsMap.addControl(new mapboxgl.NavigationControl());
+                        try {
+                            const trailsMap = new mapboxgl.Map({
+                                container: 'trailsMap',
+                                style: 'mapbox://styles/mapbox/outdoors-v12',
+                                center: userLocation,
+                                zoom: 11
+                            });
+                            trailsMap.addControl(new mapboxgl.NavigationControl());
+                            
+                            // Add some example trail markers
+                            const trails = [
+                                { name: 'Pacific Coast Trail', coords: [-122.5, 37.8], difficulty: 'moderate' },
+                                { name: 'Mountain Ridge', coords: [-122.3, 37.7], difficulty: 'hard' },
+                                { name: 'River Path', coords: [-122.1, 37.6], difficulty: 'easy' }
+                            ];
+                            
+                            trails.forEach(trail => {
+                                new mapboxgl.Marker({ 
+                                    color: trail.difficulty === 'easy' ? '#10b981' : 
+                                          trail.difficulty === 'moderate' ? '#f59e0b' : '#ef4444' 
+                                })
+                                .setLngLat(trail.coords)
+                                .setPopup(new mapboxgl.Popup().setHTML(`
+                                    <h4>${trail.name}</h4>
+                                    <p>${trail.difficulty}</p>
+                                `))
+                                .addTo(trailsMap);
+                            });
+                        } catch (error) {
+                            console.error('Trails map error:', error);
+                            document.getElementById('trailsMap').innerHTML = 
+                                '<div class="empty-state"><p>Map could not load</p></div>';
+                        }
                     }, 100);
                     break;
                     
                 case 'events':
-                    content.innerHTML = `
-                        <div class="content-header">
-                            <h1>Events</h1>
-                            <p style="color: var(--text-secondary);">Group rides and cycling events</p>
-                        </div>
-                        <div class="calendar-container">
-                            <div class="empty-state">
-                                <h3>Coming Soon!</h3>
-                                <p>Group rides and events will be available here</p>
+                    mainContainer.innerHTML = `
+                        <main class="main-content" style="grid-column: 1 / -1;">
+                            <div class="content-header">
+                                <h1>Events</h1>
+                                <p style="color: var(--text-secondary);">Group rides and cycling events</p>
                             </div>
-                        </div>
+                            <div class="calendar-container">
+                                <div class="empty-state">
+                                    <h3>Coming Soon!</h3>
+                                    <p>Group rides and events will be available here</p>
+                                </div>
+                            </div>
+                        </main>
                     `;
                     break;
             }
@@ -1236,24 +1270,35 @@
                 const snapshot = await db.collection('availability')
                     .where('visibility', '==', 'public')
                     .where('date', '>=', new Date().toISOString().split('T')[0])
+                    .limit(20)
                     .get();
                 
+                console.log('Found', snapshot.size, 'public rides');
+                
                 if (snapshot.empty) {
-                    container.innerHTML = '<div class="calendar-container"><div class="empty-state"><p>No public rides available</p></div></div>';
+                    container.innerHTML = '<div class="calendar-container"><div class="empty-state"><p>No public rides available. Be the first to create one!</p></div></div>';
                     return;
                 }
                 
                 container.innerHTML = '';
                 
+                // Add a grid container for rides
+                const gridContainer = document.createElement('div');
+                gridContainer.style.cssText = 'display: grid; gap: 1rem;';
+                container.appendChild(gridContainer);
+                
                 for (const doc of snapshot.docs) {
                     const data = doc.data();
-                    if (data.userId !== currentUser.uid) {
+                    
+                    // Skip current user's own rides
+                    if (data.userId === currentUser.uid) continue;
+                    
+                    try {
                         const userDoc = await db.collection('users').doc(data.userId).get();
-                        const userData = userDoc.data() || {};
+                        const userData = userDoc.data() || { name: 'Anonymous Rider' };
                         
                         const rideDiv = document.createElement('div');
                         rideDiv.className = 'calendar-container';
-                        rideDiv.style.marginBottom = '1rem';
                         
                         const dateObj = new Date(data.date);
                         const formattedDate = dateObj.toLocaleDateString('en-US', { 
@@ -1262,24 +1307,84 @@
                             day: 'numeric' 
                         });
                         
+                        const formatTime = (time) => {
+                            if (!time) return '';
+                            const [hours, minutes] = time.split(':');
+                            const hour = parseInt(hours);
+                            const ampm = hour >= 12 ? 'PM' : 'AM';
+                            const displayHour = hour % 12 || 12;
+                            return `${displayHour}:${minutes} ${ampm}`;
+                        };
+                        
                         rideDiv.innerHTML = `
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <div>
-                                    <h3>${userData.name || 'Rider'}</h3>
-                                    <p style="color: var(--text-secondary);">${formattedDate} • ${data.trailType}</p>
+                            <div style="display: flex; justify-content: space-between; align-items: start; gap: 2rem;">
+                                <div style="flex: 1;">
+                                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                                        <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--secondary)); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                                            ${userData.name.substring(0, 2).toUpperCase()}
+                                        </div>
+                                        <div>
+                                            <h3 style="margin: 0;">${userData.name}</h3>
+                                            <p style="color: var(--text-secondary); margin: 0; font-size: 0.9rem;">Looking for riding partner</p>
+                                        </div>
+                                    </div>
+                                    <div style="padding-left: 4rem;">
+                                        <p style="color: var(--text-primary); margin-bottom: 0.5rem;">
+                                            <strong>${formattedDate}</strong>
+                                        </p>
+                                        <p style="color: var(--text-secondary); margin-bottom: 0.5rem;">
+                                            ${formatTime(data.startTime)} - ${formatTime(data.endTime)}
+                                        </p>
+                                        <span style="display: inline-block; padding: 0.25rem 0.75rem; background: rgba(37, 99, 235, 0.1); color: var(--primary); border-radius: 20px; font-size: 0.85rem;">
+                                            ${data.trailType.charAt(0).toUpperCase() + data.trailType.slice(1).replace(/([A-Z])/g, ' $1')}
+                                        </span>
+                                    </div>
                                 </div>
-                                <button class="btn-primary" style="width: auto; padding: 0.5rem 1.5rem;">
+                                <button class="btn-primary" onclick="requestToJoin('${doc.id}')" style="width: auto; padding: 0.75rem 1.5rem; margin: 0;">
                                     Request to Join
                                 </button>
                             </div>
                         `;
                         
-                        container.appendChild(rideDiv);
+                        gridContainer.appendChild(rideDiv);
+                    } catch (error) {
+                        console.error('Error loading rider info:', error);
                     }
                 }
+                
+                if (gridContainer.children.length === 0) {
+                    gridContainer.innerHTML = '<div class="calendar-container"><div class="empty-state"><p>No other public rides available yet</p></div></div>';
+                }
+                
             } catch (error) {
                 console.error('Error loading public rides:', error);
-                container.innerHTML = '<div class="empty-state"><p>Error loading rides</p></div>';
+                container.innerHTML = '<div class="calendar-container"><div class="empty-state"><p>Error loading rides. Please try again.</p></div></div>';
+            }
+        }
+        
+        // Request to join a ride
+        async function requestToJoin(availabilityId) {
+            try {
+                // Add booking request to Firestore
+                await db.collection('bookings').add({
+                    availabilityId: availabilityId,
+                    requesterId: currentUser.uid,
+                    requesterName: currentUser.displayName || currentUser.email.split('@')[0],
+                    status: 'pending',
+                    message: "I'd love to join your ride!",
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                showNotification('Request sent! The rider will be notified.', 'success');
+                
+                // Disable the button
+                event.target.textContent = 'Request Sent';
+                event.target.disabled = true;
+                event.target.style.opacity = '0.7';
+                
+            } catch (error) {
+                console.error('Error sending request:', error);
+                showNotification('Error sending request', 'error');
             }
         }
 
