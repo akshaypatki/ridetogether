@@ -1,0 +1,440 @@
+/* Enhanced Styles for Calendar and Booking Flow */
+
+/* Calendar Component Styles */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.form-section {
+    background: var(--bg-dark);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+}
+
+.calendar-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.cal-nav-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: all 0.2s ease;
+}
+
+.cal-nav-btn:hover {
+    background: var(--primary);
+    border-color: var(--primary);
+}
+
+#calendarMonth {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+}
+
+.date-grid {
+    margin-top: 1rem;
+}
+
+.weekday-headers {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-bottom: 8px;
+}
+
+.weekday {
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+    padding: 4px;
+}
+
+.days-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+
+.day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    position: relative;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.day.available {
+    cursor: pointer;
+    color: var(--text-primary);
+}
+
+.day.available:hover {
+    background: rgba(37, 99, 235, 0.1);
+    border-color: var(--primary);
+}
+
+.day.past {
+    color: var(--text-secondary);
+    opacity: 0.4;
+}
+
+.day.today {
+    background: rgba(37, 99, 235, 0.1);
+    border-color: var(--primary);
+    font-weight: 600;
+}
+
+.day.selected {
+    background: var(--primary);
+    color: white;
+    font-weight: 600;
+}
+
+.today-label {
+    position: absolute;
+    bottom: 2px;
+    font-size: 0.6rem;
+    color: var(--primary);
+}
+
+.day.today.selected .today-label {
+    color: white;
+}
+
+/* Time Picker Styles */
+.time-picker {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg-card);
+}
+
+.time-slots {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 4px;
+    padding: 8px;
+}
+
+.time-slot {
+    padding: 8px;
+    text-align: center;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border);
+    transition: all 0.2s ease;
+}
+
+.time-slot:hover {
+    background: rgba(37, 99, 235, 0.1);
+    border-color: var(--primary);
+}
+
+.time-slot.selected {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+.time-hint {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 2rem;
+    font-size: 0.9rem;
+}
+
+/* Quick Options */
+.quick-options {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.quick-btn {
+    flex: 1;
+    padding: 0.5rem;
+    background: rgba(37, 99, 235, 0.1);
+    border: 1px solid var(--primary);
+    color: var(--primary);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+}
+
+.quick-btn:hover {
+    background: var(--primary);
+    color: white;
+}
+
+.trail-select {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    background: var(--bg-dark);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+
+/* Booking Dialog Styles */
+.booking-dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    padding: 1rem;
+}
+
+.booking-dialog {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 2rem;
+    max-width: 500px;
+    width: 100%;
+    border: 1px solid var(--border);
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.booking-dialog h3 {
+    margin: 0 0 0.5rem 0;
+    color: var(--text-primary);
+}
+
+.dialog-subtitle {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+}
+
+.booking-dialog textarea {
+    width: 100%;
+    background: var(--bg-dark);
+    border: 1px solid var(--border);
+    padding: 0.75rem;
+    border-radius: 8px;
+    color: var(--text-primary);
+    resize: vertical;
+    min-height: 80px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    cursor: pointer;
+    color: var(--text-primary);
+}
+
+.checkbox-label input[type="checkbox"] {
+    margin-top: 2px;
+}
+
+.dialog-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    justify-content: flex-end;
+}
+
+.btn-secondary {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+    border-color: var(--text-secondary);
+    color: var(--text-primary);
+}
+
+/* Connection Info Card */
+.connection-card {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    color: white;
+}
+
+.connection-card h4 {
+    margin: 0 0 1rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.contact-info {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.contact-item:last-child {
+    margin-bottom: 0;
+}
+
+.contact-item strong {
+    min-width: 80px;
+}
+
+.meeting-point {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.copy-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    margin-left: 0.5rem;
+}
+
+.copy-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Message Thread */
+.message-thread {
+    background: var(--bg-dark);
+    border-radius: 12px;
+    padding: 1rem;
+    max-height: 300px;
+    overflow-y: auto;
+    margin: 1rem 0;
+}
+
+.message {
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    border-radius: 8px;
+    background: var(--bg-card);
+}
+
+.message.sent {
+    background: rgba(37, 99, 235, 0.1);
+    margin-left: 2rem;
+}
+
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.message-content {
+    color: var(--text-primary);
+}
+
+.message-input {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.message-input input {
+    flex: 1;
+    background: var(--bg-dark);
+    border: 1px solid var(--border);
+    padding: 0.75rem;
+    border-radius: 8px;
+    color: var(--text-primary);
+}
+
+/* Custom Scrollbar for Time Picker */
+.time-picker::-webkit-scrollbar {
+    width: 6px;
+}
+
+.time-picker::-webkit-scrollbar-track {
+    background: var(--bg-dark);
+}
+
+.time-picker::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+}
+
+.time-picker::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .calendar-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-section {
+        padding: 1rem;
+    }
+    
+    .time-slots {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .quick-options {
+        flex-direction: column;
+    }
+    
+    .booking-dialog {
+        padding: 1.5rem;
+    }
+}
