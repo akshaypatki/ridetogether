@@ -1,0 +1,428 @@
+/* RideTogether - Responsive Styles */
+
+/* Tablet - Medium Screens */
+@media (max-width: 1200px) {
+    .main-container {
+        grid-template-columns: 250px 1fr;
+        gap: 1.5rem;
+    }
+    
+    .right-sidebar {
+        display: none;
+    }
+    
+    .availability-form {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* Small Tablets */
+@media (max-width: 968px) {
+    .main-container {
+        grid-template-columns: 200px 1fr;
+        gap: 1rem;
+        padding: 0 1rem;
+    }
+    
+    .sidebar {
+        padding: 1.5rem;
+    }
+    
+    .profile-avatar {
+        width: 80px;
+        height: 80px;
+        font-size: 2rem;
+    }
+    
+    .calendar-container {
+        padding: 1.5rem;
+    }
+    
+    .content-header h1 {
+        font-size: 2rem;
+    }
+}
+
+/* Mobile - Small Screens */
+@media (max-width: 768px) {
+    /* Mobile Navigation */
+    .nav-links {
+        display: none;
+    }
+    
+    .nav-container {
+        padding: 0 1rem;
+    }
+    
+    .header {
+        padding: 1rem;
+    }
+    
+    .logo {
+        font-size: 1.5rem;
+    }
+    
+    /* Mobile Menu Toggle */
+    .mobile-menu-toggle {
+        display: block;
+        background: none;
+        border: none;
+        color: var(--text-primary);
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 0.5rem;
+        margin-right: auto;
+    }
+    
+    /* Main Container Mobile */
+    .main-container {
+        grid-template-columns: 1fr;
+        margin-top: 5rem;
+        padding: 0 1rem;
+        gap: 1rem;
+    }
+    
+    /* Hide Sidebar on Mobile */
+    .sidebar {
+        display: none;
+    }
+    
+    /* Mobile Forms */
+    .availability-form {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .btn-primary {
+        grid-column: span 1;
+        padding: 1rem;
+    }
+    
+    .visibility-toggle {
+        grid-column: span 1;
+        flex-wrap: wrap;
+        text-align: center;
+    }
+    
+    /* Mobile Cards */
+    .auth-card {
+        padding: 2rem;
+        margin: 1rem;
+        border-radius: 16px;
+    }
+    
+    .calendar-container {
+        padding: 1.5rem;
+        border-radius: 12px;
+    }
+    
+    .availability-item {
+        padding: 1rem;
+    }
+    
+    /* Mobile Map */
+    .map-container {
+        height: 400px;
+        margin-bottom: 1rem;
+    }
+    
+    /* Mobile Text Sizes */
+    .content-header h1 {
+        font-size: 1.75rem;
+        line-height: 1.2;
+    }
+    
+    h2 {
+        font-size: 1.5rem;
+    }
+    
+    h3 {
+        font-size: 1.25rem;
+    }
+    
+    /* Mobile Ride Cards */
+    .ride-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .ride-header .btn-primary {
+        width: 100%;
+    }
+    
+    .ride-details {
+        padding-left: 0;
+        margin-top: 1rem;
+    }
+    
+    /* Mobile Notifications */
+    .notification-toast {
+        right: 10px;
+        left: 10px;
+        max-width: calc(100% - 20px);
+    }
+    
+    /* Mobile Profile */
+    .user-avatar {
+        width: 36px;
+        height: 36px;
+        font-size: 0.875rem;
+    }
+    
+    /* Mobile Empty States */
+    .empty-state {
+        padding: 2rem 1rem;
+    }
+    
+    /* Mobile Trail Cards */
+    .trail-card {
+        padding: 0.875rem;
+    }
+    
+    .trail-card h4 {
+        font-size: 1rem;
+    }
+    
+    /* Mobile Auth */
+    .auth-logo h1 {
+        font-size: 2rem;
+    }
+    
+    .auth-container {
+        padding: 0;
+    }
+}
+
+/* Very Small Mobile */
+@media (max-width: 480px) {
+    .main-container {
+        padding: 0 0.75rem;
+    }
+    
+    .content-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .calendar-container {
+        padding: 1rem;
+    }
+    
+    .auth-card {
+        padding: 1.5rem;
+        border-radius: 12px;
+    }
+    
+    .availability-item {
+        font-size: 0.9rem;
+    }
+    
+    .btn-delete {
+        padding: 0.4rem 0.6rem;
+        font-size: 1rem;
+    }
+}
+
+/* Mobile Navigation Menu */
+.mobile-menu {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 280px;
+    height: 100vh;
+    background: var(--bg-card);
+    border-right: 1px solid var(--border);
+    padding: 2rem 1.5rem;
+    transition: left 0.3s ease;
+    z-index: 1100;
+    overflow-y: auto;
+}
+
+.mobile-menu.active {
+    left: 0;
+}
+
+.mobile-menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    z-index: 1050;
+}
+
+.mobile-menu-overlay.active {
+    display: block;
+}
+
+.mobile-menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.mobile-menu-close {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.mobile-nav-link {
+    display: block;
+    padding: 1rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    margin-bottom: 0.5rem;
+}
+
+.mobile-nav-link:hover,
+.mobile-nav-link.active {
+    background: rgba(37, 99, 235, 0.1);
+    color: var(--text-primary);
+}
+
+/* Responsive Booking Requests */
+@media (max-width: 768px) {
+    .booking-request {
+        padding: 0.875rem;
+    }
+    
+    .request-header {
+        gap: 0.75rem;
+    }
+    
+    .request-avatar {
+        width: 36px;
+        height: 36px;
+        font-size: 0.875rem;
+    }
+    
+    .request-info h4 {
+        font-size: 1rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .request-message {
+        font-size: 0.875rem;
+        margin: 0.75rem 0;
+    }
+    
+    .request-actions {
+        gap: 0.5rem;
+    }
+    
+    .btn-accept,
+    .btn-decline {
+        padding: 0.5rem 0.875rem;
+        font-size: 0.875rem;
+    }
+}
+
+/* Landscape Mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+    .main-container {
+        margin-top: 4rem;
+    }
+    
+    .header {
+        padding: 0.5rem 1rem;
+    }
+    
+    .map-container {
+        height: 300px;
+    }
+    
+    .calendar-container {
+        padding: 1rem;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .header,
+    .sidebar,
+    .right-sidebar,
+    .map-container,
+    .btn-delete,
+    .notification-toast {
+        display: none !important;
+    }
+    
+    .main-container {
+        display: block;
+        margin: 0;
+        padding: 0;
+    }
+    
+    .main-content {
+        width: 100%;
+    }
+    
+    .availability-item {
+        page-break-inside: avoid;
+        border: 1px solid #ddd;
+        margin-bottom: 1rem;
+    }
+    
+    body {
+        background: white;
+        color: black;
+    }
+    
+    .calendar-container {
+        background: white;
+        border: 1px solid #ddd;
+        box-shadow: none;
+    }
+}
+
+/* Accessibility - High Contrast Mode */
+@media (prefers-contrast: high) {
+    :root {
+        --primary: #0066ff;
+        --secondary: #00cc88;
+        --bg-dark: #000000;
+        --bg-card: #1a1a1a;
+        --text-primary: #ffffff;
+        --text-secondary: #cccccc;
+        --border: #666666;
+    }
+    
+    .btn-primary {
+        border: 2px solid white;
+    }
+    
+    .form-group input:focus {
+        outline: 3px solid var(--primary);
+        outline-offset: 2px;
+    }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation: none !important;
+        transition: none !important;
+    }
+    
+    .map-container {
+        /* Disable map animations */
+        pointer-events: none;
+    }
+}
+
+/* Dark Mode Override */
+@media (prefers-color-scheme: dark) {
+    /* Already dark by default */
+}
+
+/* Light Mode Support */
+@media (prefers-color-scheme: light) {
+    /* Could add light theme variables here if needed */
+}
